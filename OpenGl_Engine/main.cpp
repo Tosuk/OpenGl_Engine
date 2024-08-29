@@ -12,7 +12,9 @@
 #include "Time.h"
 #include "Buffer.h"
 #include "Texture.h"
-//#include "Model.h"
+#include "Model.h"
+
+#include <iostream>
 
 
 
@@ -77,10 +79,6 @@ glm::vec3 cubePositions[] = {
 };
 
 
-unsigned int VBO; // Vertex Buffer Object
-unsigned int lightVAO; // Light VAO
-unsigned int cubeVAO; // Cube VAO
-
 
 int success;
 char infoLog[512];
@@ -124,6 +122,10 @@ glm::vec3 dirSpecular(0.5f, 0.5f, 0.5f);
 //object color
 glm::vec3 objectColor(1.0f, 0.5f, 0.31f);
 
+
+Model ourModel("C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/nanosuit.obj");
+
+Model model("C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/Backpack.obj"); 
 
 
 // Main function
@@ -171,39 +173,11 @@ int main()
 	////////////////////Shaders////////////////////
 	//Shader shader("C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/VertexShading.glsl", "C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/fragmentShading.glsl");
 
-	Shader lightShader("C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/lightVertex.glsl", "C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/lightFragment.glsl");
+	Shader  lightShader("C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/lightVertex.glsl", "C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/lightFragment.glsl");
 	Shader lightCubeShader("C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/lightCubeVertex.glsl", "C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/lightCubeFragment.glsl");
 
 
-	////////////////////Texture////////////////////
-	Texture texture1("C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/container2.png");
-	Texture texture2("C:/Users/tosuk/source/repos/OpenGl_Engine/OpenGl_Engine/container2_specular.png");
 
-	////////////////////Buffers////////////////////
-	
-	Buffer buffer(GL_ARRAY_BUFFER, sizeof(vertices), vertices);
-	glGenVertexArrays(1, &lightVAO); // Generate 1 vertex array object and store the ID in lightVAO
-
-	
-	// Specify the vertex attributes
-	glBindBuffer(GL_ARRAY_BUFFER, buffer.getID()); // Bind the buffer to the GL_ARRAY_BUFFER target	
-	glBindVertexArray(lightVAO); // Generate 1 vertex array object and store the ID in lightVAO
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // Specify the format of the vertex data
-	glEnableVertexAttribArray(0); // Enable the vertex  attribute array
-	
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // Specify the format of the vertex data	
-	glEnableVertexAttribArray(1); // Enable the vertex attribute array
-
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); // Specify the format of the vertex data	
-	glEnableVertexAttribArray(2); // Enable the vertex attribute array
-
-	glGenVertexArrays(1, &cubeVAO); // Generate 1 vertex array object and store the ID in VAO
-	glBindVertexArray(cubeVAO); // Generate 1 vertex array object and store the ID in VAO
-	glBindBuffer(GL_ARRAY_BUFFER, buffer.getID()); // Bind the buffer to the GL_ARRAY_BUFFER target
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0); // Specify the format of the vertex data
-	glEnableVertexAttribArray(0); // Enable the vertex attribute array
-	
 
 	//zbuffer
 	glEnable(GL_DEPTH_TEST);
@@ -273,21 +247,11 @@ int main()
 
 		glm::mat4 pers = glm::perspective(glm::radians(camera.getZoom()), (float)16/(float)9, 0.1f, 100.0f); // Create a perspective matrix
 		glm::mat4 view = camera.getViewMatrix();
-		for(int i = 0; i < 10; i++)
-		{
-			glm::mat4 model = glm::mat4(1.0f); // Create a 4x4 identity matrix
-			model = glm::translate(model, cubePositions[i]); // Translate the matrix
-			float angle = 20.0f * i; // Calculate the angle
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f)); // Rotate the matrix
-			lightShader.setMat4("model", model); // Set the model uniform
-			glBindVertexArray(lightVAO); // Bind the VAO
-			texture1.Bind();
-			texture2.Bind(1);
-			glDrawArrays(GL_TRIANGLES, 0, 36); // Draw the triangle
-		}
 
 		lightShader.setMat4("projection", pers); // Set the perspective uniform
 		lightShader.setMat4("view", view); // Set the view uniform
+
+
 
 
 		lightCubeShader.use();
@@ -298,12 +262,7 @@ int main()
 		model = glm::translate(model, lightPos); // Translate the matrix
 		model = glm::scale(model, glm::vec3(0.2f)); // Scale the matrix
 		lightCubeShader.setMat4("model", model); // Set the model uniform
-
-		glBindVertexArray(cubeVAO); // Bind the VAO
-		glDrawArrays(GL_TRIANGLES, 0, 36); // Draw the triangle
-
-
-		
+	
 
 
 
@@ -313,14 +272,6 @@ int main()
 		// Poll for and process events
 		glfwPollEvents();
 	}
-
-
-	////////////////////Cleanup////////////////////
-	glDeleteVertexArrays(1, &lightVAO);
-	glDeleteVertexArrays(1, &cubeVAO);
-	glDeleteBuffers(1, &VBO);
-	texture1.~Texture();
-	texture2.~Texture();
 
 
 	// Terminate GLFW

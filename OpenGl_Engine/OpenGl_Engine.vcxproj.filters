@@ -45,12 +45,6 @@
     <ClCompile Include="Time.cpp">
       <Filter>Quelldateien\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Texturen.cpp">
-      <Filter>Quelldateien\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Quelldateien\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
